@@ -3,6 +3,7 @@ import numpy as np
 import time
 from os import listdir
 from os.path import isfile, join
+import pytesseract
 
 
 channel_initials = list('BGR')
@@ -36,7 +37,6 @@ def fetchSpeedSign(image):
 	avg = np.average(gray)
 	#converting to black and white
 	ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
-	print(avg)
 
 	contours, hier = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 	contours = sorted(contours, key=cv2.contourArea, reverse=True)
@@ -50,15 +50,43 @@ def fetchSpeedSign(image):
 		
 	x,y,w,h = cv2.boundingRect(contour)
 	roi = image[y:y+h, x:x+w]
-	cv2.imshow("output", roi)
+
+	redRoi = roi.copy()
+	redRoi[:,:,0] = np.zeros([redRoi.shape[0], redRoi.shape[1]])
+	redRoi[:,:,1] = np.zeros([redRoi.shape[0], redRoi.shape[1]])
+
+	grayRoi = cv2.cvtColor(redRoi, cv2.COLOR_BGR2GRAY) 
+	roiMax = np.max(grayRoi)
+
+	ret, threshedRoi = cv2.threshold(grayRoi, roiMax *0.5, 255, cv2.THRESH_BINARY_INV)
+
+	roiKSize = (3, 3)
+
+	blurredRoi = cv2.blur(threshedRoi, roiKSize)
+
+	inverseGrayRoi = cv2.bitwise_not(grayRoi)
+	finalRoi = cv2.bitwise_and(inverseGrayRoi, inverseGrayRoi, mask=blurredRoi)
+	inverseFinalRoi = cv2.bitwise_not(finalRoi)
+	
+	kernel = np.zeros((3,3),np.uint8)
+	erosion = cv2.erode(finalRoi,kernel,iterations = 1)
+	dilate = cv2.dilate(erosion,kernel,iterations = 1)
+
+	text = pytesseract.image_to_string(dilate, config="--psm 11 -c tessedit_char_whitelist=0123456789")#
+	print(text)
+	cv2.imshow('result', dilate)
 	cv2.waitKey(3000)
+
+
+
+	custom_config = r'--oem 3 --psm 11 -c tessedit_char_whitelist=0123456789'
+
 
 
 #cv2.imshow('result', gray)
 
 
 files = [f for f in listdir("images/") if isfile(join("images/", f))]
-print(files)
 #img = cv2.imread("images/80.jpg")
 #fetchSpeedSign(img)
 
