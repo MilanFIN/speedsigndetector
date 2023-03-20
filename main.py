@@ -1,3 +1,4 @@
+import re
 import cv2
 import numpy as np
 import time
@@ -66,15 +67,20 @@ def fetchSpeedSign(image):
 
 	inverseGrayRoi = cv2.bitwise_not(grayRoi)
 	finalRoi = cv2.bitwise_and(inverseGrayRoi, inverseGrayRoi, mask=blurredRoi)
-	inverseFinalRoi = cv2.bitwise_not(finalRoi)
 	
 	kernel = np.zeros((3,3),np.uint8)
 	erosion = cv2.erode(finalRoi,kernel,iterations = 1)
 	dilate = cv2.dilate(erosion,kernel,iterations = 1)
 
-	text = pytesseract.image_to_string(dilate, config="--psm 11 -c tessedit_char_whitelist=0123456789")#
-	print(text)
-	cv2.imshow('result', dilate)
+	rawText = pytesseract.image_to_string(dilate, config="--psm 11 -c tessedit_char_whitelist=0123456789")#
+	speedText = ""
+	for s in rawText:
+		if (s.isdigit()):
+			speedText += s
+	cv2.rectangle(image, [x,y], [x+w, y+h], (255,0,255),4)
+	cv2.putText(image, speedText, [x+2,y-5], cv2.FONT_HERSHEY_SIMPLEX, 
+                   1, (255,0,255), 2, cv2.LINE_AA)
+	cv2.imshow('result', image)
 	cv2.waitKey(3000)
 
 
