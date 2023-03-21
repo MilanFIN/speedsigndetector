@@ -8,6 +8,7 @@ import pytesseract
 
 
 channel_initials = list('BGR')
+windowName = "drive"
 
 
 #cv2.imshow('image',image)
@@ -41,14 +42,19 @@ def fetchSpeedSign(image):
 
 	contours, hier = cv2.findContours(thresh,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
 	contours = sorted(contours, key=cv2.contourArea, reverse=True)
+	foundContour = False
 	for cnt in contours:
 		if 200<cv2.contourArea(cnt)<5000:
 			contour = cnt
+			foundContour = True
 			#cv2.drawContours(image,[cnt],0,(0,255,0),2)
 			#cv2.drawContours(mask,[cnt],0,255,-1)
 			
 			break
 		
+	if (not foundContour):
+		return frame
+
 	x,y,w,h = cv2.boundingRect(contour)
 	roi = image[y:y+h, x:x+w]
 
@@ -80,9 +86,9 @@ def fetchSpeedSign(image):
 	cv2.rectangle(image, [x,y], [x+w, y+h], (255,0,255),4)
 	cv2.putText(image, speedText, [x+2,y-5], cv2.FONT_HERSHEY_SIMPLEX, 
                    1, (255,0,255), 2, cv2.LINE_AA)
-	cv2.imshow('result', image)
-	cv2.waitKey(3000)
-
+	#cv2.imshow('result', image)
+	#cv2.waitKey(3000)
+	return image
 
 
 	custom_config = r'--oem 3 --psm 11 -c tessedit_char_whitelist=0123456789'
@@ -96,6 +102,24 @@ files = [f for f in listdir("images/") if isfile(join("images/", f))]
 #img = cv2.imread("images/80.jpg")
 #fetchSpeedSign(img)
 
+videoFolder = "videos/"
+videoName = "Driving in Finland Short Drive in Tampere, Finland.mp4"
+
+cap = cv2.VideoCapture(videoFolder+videoName)
+count = 0
+while cap.isOpened():
+    ret,frame = cap.read()
+    frame = fetchSpeedSign(frame)
+    cv2.imshow(windowName, frame)
+    count = count + 1
+    if cv2.waitKey(10) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows() # destroy all opened windows
+
+"""
 for file in files:
 	img = cv2.imread("images/"+file)
 	fetchSpeedSign(img)
+"""
