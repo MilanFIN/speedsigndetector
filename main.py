@@ -164,16 +164,16 @@ def parseSift(image):
 	# Initialize SIFT detector
 	sift = cv2.SIFT_create(contrastThreshold=0.1)#contrastThreshold=0.1
 
-	comparisonImage = cv2.imread("gimp/80_2.jpg")
+	comparisonImage = cv2.imread("gimp/30_2.jpg")
 
-	comparisonImage = cv2.resize(comparisonImage, dsize=(256, 256), interpolation=cv2.INTER_CUBIC)
+	comparisonImage = cv2.resize(comparisonImage, dsize=(160, 160), interpolation=cv2.INTER_CUBIC) #256
 
 	gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) #
 	compGray = cv2.cvtColor(comparisonImage, cv2.COLOR_BGR2GRAY) #
 
 	#gray = cv2.GaussianBlur(gray, (7,7), 0 )
 	#compGray = cv2.GaussianBlur(compGray, (7,7), 0 )
-	#gray = cv2.resize(gray, gray.shape/2, interpolation = cv2.INTER_AREA)
+	#gray = cv2.resize(gray, (gray.shape[0]*2, gray.shape[1]*2), interpolation = cv2.INTER_AREA)
 	"""
 	kp = sift.detect(compGray,None)
 	#comparisonImage = cv2.drawKeypoints(compGray,kp,comparisonImage)
@@ -209,7 +209,7 @@ def parseSift(image):
 
 	if (len(found) != 0):
 		knn_image = cv2.drawMatchesKnn(comparisonImage, signKp, image, imgKp, matches, None, flags=2)
-	return knn_image
+	return image
 
 
 
