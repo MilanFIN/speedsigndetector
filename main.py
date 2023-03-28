@@ -164,7 +164,7 @@ def parseSift(image):
 	# Initialize SIFT detector
 	sift = cv2.SIFT_create(contrastThreshold=0.1)#contrastThreshold=0.1
 
-	comparisonImage = cv2.imread("gimp/30_2.jpg")
+	comparisonImage = cv2.imread("gimp/80_2.jpg")
 
 	comparisonImage = cv2.resize(comparisonImage, dsize=(160, 160), interpolation=cv2.INTER_CUBIC) #256
 
@@ -192,7 +192,7 @@ def parseSift(image):
 	
 	found = []
 	for match in matches:
-		if match[0].distance< 0.25 * match[1].distance: #0.5 #original 0.1
+		if match[0].distance< 0.5 * match[1].distance: #0.25 #original 0.1
 			found.append(match)
 		#print(match[0].distance,  match[1].distance)
 		#print(match[0].trainIdx)
@@ -207,8 +207,8 @@ def parseSift(image):
 		cv2.circle(image, (x, y), 25, (0, 255, 0), 2)
 
 
-	if (len(found) != 0):
-		knn_image = cv2.drawMatchesKnn(comparisonImage, signKp, image, imgKp, matches, None, flags=2)
+	#if (len(found) != 0):
+		#knn_image = cv2.drawMatchesKnn(comparisonImage, signKp, image, imgKp, matches, None, flags=2)
 	return image
 
 
