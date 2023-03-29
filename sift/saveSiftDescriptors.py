@@ -17,6 +17,8 @@ speedSigns = [  "20",
 with open('siftDescriptors.pkl', 'wb') as output:
 	for sign in speedSigns:
 		signImg = cv2.imread("sourceImages/"+sign+".jpg")
+		signImg = cv2.resize(signImg, dsize=(160, 160), interpolation=cv2.INTER_CUBIC) #256
+
 		graySign = cv2.cvtColor(signImg, cv2.COLOR_BGR2GRAY) #
 		signKp, signDesc = sift.detectAndCompute(graySign, None)
 
