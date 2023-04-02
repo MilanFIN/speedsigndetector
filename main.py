@@ -9,6 +9,7 @@ import pytesseract
 from redChannel import redChannel
 from circle import circle
 from sift import sift
+from brisk import brisk
 
 
 channel_initials = list('BGR')
@@ -31,17 +32,18 @@ files = [f for f in listdir("images/") if isfile(join("images/", f))]
 
 videoFolder = "videos/"
 videoName = "Driving in Finland Short Drive in Tampere, Finland.mp4"
+
 """
 
 cap = cv2.VideoCapture(videoFolder+videoName)
-cap.set(cv2.CAP_PROP_POS_FRAMES, 5800)#5200
+cap.set(cv2.CAP_PROP_POS_FRAMES, 5200)#5200
 count = 0
 elapsedTime = 0
 fps = 10
 while cap.isOpened():
 	start = time.time()
 	ret,frame = cap.read()
-	frame = parseSift(frame)
+	frame = sift.detect(frame)
 	cv2.imshow(windowName, frame)
 	count = count + 1
 	if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -57,7 +59,7 @@ cv2.destroyAllWindows() # destroy all opened windows
 for file in reversed(files):
 	img = cv2.imread("images/"+file)
 	#img = parseColor(img)
-	img = sift.detect(img)
+	img = brisk.detect(img)
 	cv2.imshow(windowName, img)
 
 	if cv2.waitKey(3000) & 0xFF == ord('q'):
