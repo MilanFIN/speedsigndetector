@@ -32,7 +32,6 @@ files = [f for f in listdir("images/") if isfile(join("images/", f))]
 
 videoFolder = "videos/"
 videoName = "Driving in Finland Short Drive in Tampere, Finland.mp4"
-
 """
 
 cap = cv2.VideoCapture(videoFolder+videoName)
@@ -43,7 +42,7 @@ fps = 10
 while cap.isOpened():
 	start = time.time()
 	ret,frame = cap.read()
-	frame = sift.detect(frame)
+	frame = brisk.detect(frame)
 	cv2.imshow(windowName, frame)
 	count = count + 1
 	if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -59,8 +58,9 @@ cv2.destroyAllWindows() # destroy all opened windows
 for file in reversed(files):
 	img = cv2.imread("images/"+file)
 	#img = parseColor(img)
-	img = brisk.detect(img)
+	img = redChannel.detect(img)
 	cv2.imshow(windowName, img)
 
 	if cv2.waitKey(3000) & 0xFF == ord('q'):
 		break
+

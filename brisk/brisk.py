@@ -81,7 +81,14 @@ def detect(image):
 
 		
 
-	if (lowestElem != -1 and lowestScore < 80000):
+	if (lowestElem != -1 and lowestScore < 78000):
+		"""
+		for match in bestMatches:
+			(x, y) = imgKp[match.trainIdx].pt
+			x = int(x)
+			y = int(y)
+			cv2.circle(image, (x, y), 3, (255, 0, 255), 2)
+		"""
 		(x, y) = avgKeypointPosition(bestMatches[:2], imgKp)
 		cv2.circle(image, (x, y), 25, (255, 0, 255), 2)
 
