@@ -5,7 +5,7 @@ import json
 import random
 from skimage.util import random_noise
 
-from model import Net
+from model import Net, SignDataset
 import torch
 import torch.optim as optim
 from torchvision import transforms
@@ -24,6 +24,7 @@ speedSigns = [  "20",
 				"80",
 				"100",
 				"120"]
+saveName = "signModel"
 
 random.seed(1001)
 
@@ -41,6 +42,21 @@ def getDataset(iterations):
 
 			signImg = cv2.imread("sourceImages/"+sign+".jpg")
 			graySign = cv2.cvtColor(signImg, cv2.COLOR_BGR2GRAY) #
+
+
+
+
+			#rotation
+			angle = 0#random.randint(-10, 10)
+			scale = random.uniform(0.8, 1.2)
+			(h, w) = graySign.shape[:2]
+			center = (w // 2, h // 2)
+			M = cv2.getRotationMatrix2D(center, angle,scale)
+
+			graySign = cv2.warpAffine(graySign, M, (w, h),
+									borderMode=cv2.BORDER_CONSTANT,
+									borderValue=(255,255,255))
+						
 
 			
 			num_rows, num_cols = graySign.shape[:2] 
@@ -85,63 +101,45 @@ def getDataset(iterations):
 
 
 			minNoise = 0.01
-			maxNoise = 0.2
+			maxNoise = 0.3
 			noiseCount = random.uniform(minNoise, maxNoise)
 			graySign = random_noise(graySign, mode='s&p', amount=noiseCount)
 
 			#back to 8 bit
-			graySign = np.array(255 * graySign, dtype=np.uint8)
+			#graySign = np.array(255 * graySign, dtype=np.uint8)
 
 			size = random.randint(30, 50)
-			graySign = cv2.resize(graySign, dsize=(size, size), interpolation=cv2.INTER_CUBIC)
+			#graySign = cv2.resize(graySign, dsize=(size, size), interpolation=cv2.INTER_CUBIC)
 
 			graySign = cv2.resize(graySign, dsize=(32, 32), interpolation=cv2.INTER_CUBIC)
 
 
-			cv2.imshow("test", graySign)
 
 			outputs.append(i)
 			inputs.append(graySign) #.flatten()
 
-
-			cv2.waitKey(1)
+			#cv2.imshow("test", graySign)
+			#cv2.waitKey(100)
 
 		iteration += 1
 
+
 	outputs = np.eye(len(speedSigns))[outputs]
 	inputs = np.array(inputs)
+	
 	return inputs, outputs
 	
 
 
 
 
-class MyDataset(Dataset):
-    def __init__(self, data, targets, transform=None):
-        self.data = data
-        self.targets = torch.FloatTensor(targets)
-        print(len(self.targets), len(self.data))
-        self.transform = transform
-        
-    def __getitem__(self, index):
-        x = self.data[index]
-        y = self.targets[index]
+inputs, outputs = getDataset(100)
 
-        return x, y
-    
-    def __len__(self):
-        return len(self.data)
-
-
-#X = torch.from_numpy(inputs).type(torch.FloatTensor)
-#y = torch.from_numpy(outputs).type(torch.FloatTensor)
-
-inputs, outputs = getDataset(20)
 
 tensor_x = torch.Tensor(inputs) # transform to torch tensor
 tensor_y = torch.Tensor(outputs)
-my_dataset = MyDataset(tensor_x,tensor_y) # create your datset
-my_dataloader = DataLoader(my_dataset) # create your dataloader
+signDataset = SignDataset(tensor_x,tensor_y) # create your datset
+dataLoader = DataLoader(signDataset) # create your dataloader
 
 
 #Initialize the model       
@@ -149,54 +147,51 @@ net = Net()
 
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.1)
+#optimizer = optim.SGD(net.parameters(), lr=0.00005, momentum=0.1)
+optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.1)
 
 
-for epoch in range(200):  # loop over the dataset multiple times
+for epoch in range(100):  # loop over the dataset multiple times
 
-    running_loss = 0.0
-    for i, data in enumerate(my_dataloader, 0):
-        # get the inputs; data is a list of [inputs, labels]
-        inputs, labels = data
+	running_loss = 0.0
+	for i, data in enumerate(dataLoader, 0):
+		signs, labels = data
 
-        # zero the parameter gradients
-        optimizer.zero_grad()
+		optimizer.zero_grad()
 
-        # forward + backward + optimize
-        outputs = net(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+		predictions = net(signs)
+		loss = criterion(predictions, labels)
+		loss.backward()
+		optimizer.step()
 
-        # print statistics
-        running_loss += loss.item()
-        #if i % 2000 == 1999:    # print every 2000 mini-batches
-    print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}')
-    running_loss = 0.0
+		running_loss += loss.item()
+		#if i % 500 == 499:   
+	print(f'[{epoch + 1}, {i + 1:5d}] loss: {(running_loss/i):.5f}')
+	running_loss = 0.0
 
 print('Finished Training')
 
 
 
+torch.save(net.state_dict(), "./models/"+saveName+".pt")
 
-inputs, outputs = getDataset(20)
-tensor_x = torch.Tensor(inputs) # transform to torch tensor
+
+inputs, outputs = getDataset(10)
+tensor_x = torch.Tensor(inputs)
 tensor_y = torch.Tensor(outputs)
-my_dataset = MyDataset(tensor_x,tensor_y) # create your datset
-my_dataloader = DataLoader(my_dataset) # create your dataloader
+my_dataset = SignDataset(tensor_x,tensor_y)
+my_dataloader = DataLoader(my_dataset)
+
 
 
 correct = 0
 total = 0
-# since we're not training, we don't need to calculate the gradients for our outputs
 with torch.no_grad():
-    for data in my_dataloader:
-        images, labels = data
-        # calculate outputs by running images through the network
-        outputs = net(images)
-        # the class with the highest energy is what we choose as prediction
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
+	for data in my_dataloader:
+		images, labels = data
+		outputs = net(images)
+		_, predicted = torch.max(outputs.data, 1)
+		total += labels.size(0)
+		correct += (predicted == labels).sum().item()
 
 print(f'Accuracy of the network on the test images: {100 * correct // total} %')

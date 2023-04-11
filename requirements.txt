@@ -1,3 +1,4 @@
 opencv-python
 pytesseract
+scikit-image
 #opencv-contrib-python
