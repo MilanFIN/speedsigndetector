@@ -32,7 +32,6 @@ class SignDataset(Dataset):
 	def __getitem__(self, index):
 		x = self.data[index]
 		y = self.targets[index]
-
 		return x, y
 	
 	def __len__(self):
@@ -42,7 +41,6 @@ class SignDataset(Dataset):
 def classifyRoi(roi, model):
 
 	roi = cv2.resize(roi, dsize=(32, 32), interpolation=cv2.INTER_CUBIC)
-	print(roi)
 	roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY) 
 	#convert to float
 	roi =  roi / 255.0

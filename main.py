@@ -6,22 +6,40 @@ from os import listdir
 from os.path import isfile, join
 import pytesseract
 
-from redChannel import redChannel
-from circle import circle
-from sift import sift
-from brisk import brisk
 
 import sys
+import argparse
 
 
-channel_initials = list('BGR')
-windowName = "drive"
 
-algo = "color"
+def detect(method, secondary=None):
+	windowName = "drive"
+
+	files = [f for f in listdir("images/") if isfile(join("images/", f))]
+
+	for file in reversed(files):
+		img = cv2.imread("images/"+file)
+		#img = parseColor(img)
+		if (secondary is not None):
+			img = method.detect(img, secondary)
+		else:
+			img = method.detect(img)
+		cv2.imshow(windowName, img)
+
+		if cv2.waitKey(3000) & 0xFF == ord('q'):
+			break
+
+
+
+parser = argparse.ArgumentParser("")
+parser.add_argument("--algorithm", help="select algorithm", type=str)
+parser.add_argument("--classifier", help="optional parameter to specify usage of a neural network", type=str)
+
+args = vars(parser.parse_args())
 
 model = None
 
-if (algo == "color"):
+if (args["classifier"] == "cnn"):
 	from convolution.model import Net, SignDataset
 	import torch
 	import torch.optim as optim
@@ -36,11 +54,37 @@ if (algo == "color"):
 	model.load_state_dict(torch.load("./convolution/models/signModel.pt"))
 
 
+if (args["algorithm"] is not None):
+	algo = args["algorithm"]
+
+	if (algo == "color"):
+		from color import color
+		detect(color, model)
+	elif (algo == "shape"):
+		from circle import circle
+		detect(circle, model)
+	elif (algo == "sift"):
+		from sift import sift
+		detect(sift)
+	elif (algo == "brisk"):
+		from brisk import brisk
+		detect(brisk)
+else:
+	print("missing -alg parameter")
+
+sys.exit(0)
+
+
+
+algo = "color"
+
+model = None
 
 
 
 
-files = [f for f in listdir("images/") if isfile(join("images/", f))]
+
+
 
 videoFolder = "videos/"
 videoName = "Driving in Finland Short Drive in Tampere, Finland.mp4"
