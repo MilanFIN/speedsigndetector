@@ -69,8 +69,11 @@ if (args["algorithm"] is not None):
 	elif (algo == "brisk"):
 		from brisk import brisk
 		detect(brisk)
+	elif (algo == "haar"):
+		from cascade import cascade
+		detect(cascade)
 else:
-	print("missing -alg parameter")
+	print("missing -algorithm parameter")
 
 sys.exit(0)
 
