@@ -8,7 +8,7 @@ See requirements.txt and additionally install pytorch (torch & torchvision)
 
 # Usage
 
-Start with python3 main.py `--algo <algorithm>` `--classifier <optional classifier>`
+Start with `python3 main.py --algo <algorithm> --classifier <optional classifier>`
 
 Where the algorithm can be one of the following:
 
