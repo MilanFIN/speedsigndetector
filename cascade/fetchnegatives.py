@@ -19,16 +19,16 @@ def fetchNegatives():
 			img = cv2.imread(src_dir+file)
 			gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
 
-			gray = cv2.resize(gray, dsize=(100, 100), interpolation=cv2.INTER_CUBIC)
+			gray = cv2.resize(gray, dsize=(300, 300), interpolation=cv2.INTER_CUBIC)
 			cv2.imwrite(dst_dir + str(i) + ".jpg", gray)
 			i += 1
 		except Exception:
 			pass
-		if i >= 2000:
+		if i >= 5000:
 			break
 
 
-def createNegativePos():
+def createNegativePositions():
 
 	
 	for img in listdir("neg"):
@@ -39,5 +39,5 @@ def createNegativePos():
 
 
 
-#fetchNegatives()
-#createNegativePos()
+fetchNegatives()
+createNegativePositions()

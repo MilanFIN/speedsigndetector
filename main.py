@@ -39,7 +39,7 @@ args = vars(parser.parse_args())
 
 model = None
 
-if (args["classifier"] == "cnn"):
+if (args["classifier"] == "cnn" ):
 	from convolution.model import Net, SignDataset
 	import torch
 	import torch.optim as optim
@@ -71,7 +71,16 @@ if (args["algorithm"] is not None):
 		detect(brisk)
 	elif (algo == "haar"):
 		from cascade import cascade
-		detect(cascade)
+		from convolution.model import Net
+		import torch
+		import torch.optim as optim
+		import torch.nn as nn
+		import torch.nn.functional as F
+
+		model = Net()
+		model.load_state_dict(torch.load("./convolution/models/signModel.pt"))
+
+		detect(cascade, model)
 else:
 	print("missing -algorithm parameter")
 

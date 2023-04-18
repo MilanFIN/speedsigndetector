@@ -44,37 +44,9 @@ def getDataset(iterations):
 			graySign = cv2.cvtColor(signImg, cv2.COLOR_BGR2GRAY) #
 
 
-
-
-			#rotation
-			angle = 0#random.randint(-10, 10)
-			scale = random.uniform(0.8, 1.2)
-			(h, w) = graySign.shape[:2]
-			center = (w // 2, h // 2)
-			M = cv2.getRotationMatrix2D(center, angle,scale)
-
-			graySign = cv2.warpAffine(graySign, M, (w, h),
-									borderMode=cv2.BORDER_CONSTANT,
-									borderValue=(255,255,255))
-						
-
-			
-			num_rows, num_cols = graySign.shape[:2] 
-
-			xTranslation = random.randint(-20, 20)
-			yTranslation = random.randint(-20, 20)
-
-
-			translation_matrix = np.float32([ [1,0,xTranslation], [0,1,yTranslation] ])   
-
-			graySign = cv2.warpAffine(graySign, translation_matrix, (num_cols, num_rows),
-									borderMode=cv2.BORDER_CONSTANT,
-									borderValue=(255,255,255))
-			
-
-
 			xPerChange = random.randint(-30, 30)
 			yPerChange = random.randint(-30, 30)
+			num_rows, num_cols = graySign.shape[:2] 
 
 			topLeft = [0,0]
 			botLeft = [0,num_rows]
@@ -100,15 +72,51 @@ def getDataset(iterations):
 													borderValue=(255,255,255))
 
 
+			origY, origX = graySign.shape[:2] 
+			graySign = cv2.copyMakeBorder(graySign,100, 100, 100, 100,cv2.BORDER_CONSTANT,value=(255,255,255))
+
+
+			#rotation
+			angle = 0#random.randint(-10, 10)
+			scale = random.uniform(0.5, 1.5)
+			(h, w) = graySign.shape[:2]
+			center = (w // 2, h // 2)
+			M = cv2.getRotationMatrix2D(center, angle,scale)
+
+			graySign = cv2.warpAffine(graySign, M, (w, h),
+									borderMode=cv2.BORDER_CONSTANT,
+									borderValue=(255,255,255))
+						
+
+
+
+
+			xTranslation = random.randint(-50, 50)
+			yTranslation = random.randint(-50, 50)
+
+
+			translation_matrix = np.float32([ [1,0,xTranslation], [0,1,yTranslation] ])   
+			num_rows, num_cols = graySign.shape[:2] 
+
+			graySign = cv2.warpAffine(graySign, translation_matrix, (num_cols, num_rows),
+									borderMode=cv2.BORDER_CONSTANT,
+									borderValue=(255,255,255))
+			
+			graySign = graySign[100:100+origY, 100:100+origX]
+
+
+
+
 			minNoise = 0.01
-			maxNoise = 0.3
+			maxNoise = 0.2
 			noiseCount = random.uniform(minNoise, maxNoise)
 			graySign = random_noise(graySign, mode='s&p', amount=noiseCount)
+
 
 			#back to 8 bit
 			#graySign = np.array(255 * graySign, dtype=np.uint8)
 
-			size = random.randint(30, 50)
+			#size = random.randint(30, 50)
 			#graySign = cv2.resize(graySign, dsize=(size, size), interpolation=cv2.INTER_CUBIC)
 
 			graySign = cv2.resize(graySign, dsize=(32, 32), interpolation=cv2.INTER_CUBIC)
@@ -117,11 +125,13 @@ def getDataset(iterations):
 
 			outputs.append(i)
 			inputs.append(graySign) #.flatten()
-
-			#cv2.imshow("test", graySign)
-			#cv2.waitKey(100)
+			"""
+			"""
+			cv2.imshow("test", graySign)
+			cv2.waitKey(300)
 
 		iteration += 1
+		print("making training data: ", iteration, " / ", iterations)
 
 
 	outputs = np.eye(len(speedSigns))[outputs]
@@ -133,7 +143,7 @@ def getDataset(iterations):
 
 
 
-inputs, outputs = getDataset(100)
+inputs, outputs = getDataset(1000)
 
 
 tensor_x = torch.Tensor(inputs) # transform to torch tensor
