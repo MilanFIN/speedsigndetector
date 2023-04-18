@@ -1,6 +1,6 @@
 # speedsigndetector
 
-wip machine vision project detect and classify finnish speedsings from images or videos. Currently includes 5 different detection methods with varying levels of success.
+wip machine vision project for detecting and classifying finnish speedsings from images or videos. Currently includes 5 different detection methods with varying levels of success.
 
 # Dependencies
 
