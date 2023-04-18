@@ -32,7 +32,7 @@ def detect(method, secondary=None):
 
 
 parser = argparse.ArgumentParser("")
-parser.add_argument("--algorithm", help="select algorithm", type=str)
+parser.add_argument("--algo", help="select algorithm", type=str)
 parser.add_argument("--classifier", help="optional parameter to specify usage of a neural network", type=str)
 
 args = vars(parser.parse_args())
@@ -54,8 +54,8 @@ if (args["classifier"] == "cnn" ):
 	model.load_state_dict(torch.load("./convolution/models/signModel.pt"))
 
 
-if (args["algorithm"] is not None):
-	algo = args["algorithm"]
+if (args["algo"] is not None):
+	algo = args["algo"]
 
 	if (algo == "color"):
 		from color import color
@@ -82,7 +82,7 @@ if (args["algorithm"] is not None):
 
 		detect(cascade, model)
 else:
-	print("missing -algorithm parameter")
+	print("missing -algo parameter")
 
 sys.exit(0)
 
