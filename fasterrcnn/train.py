@@ -6,6 +6,7 @@ from dataset import CustomDataset, Compose
 from torch.utils.data import DataLoader
 from torchvision.transforms.functional import to_tensor
 from torchvision.transforms import transforms as T
+import numpy as np
 
 
 def get_transform(train):
@@ -42,11 +43,11 @@ if torch.cuda.is_available():
 	model = model.cuda()
 
 
-#Set up data loaders
-train_loader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=collate_fn)  # custom_collate_fn handles padding of varying-sized annotations
+#Set up data loader
+train_loader = DataLoader(dataset, batch_size=1, shuffle=True, collate_fn=collate_fn)
 
 #Loss function
-criterion = torch.nn.CrossEntropyLoss()  # Choose appropriate loss function for object detection
+criterion = torch.nn.CrossEntropyLoss() 
 
 #Optimization
 optimizer = torch.optim.SGD(model.parameters(), lr=0.002,
@@ -57,28 +58,25 @@ model.train()
 num_epochs = 10
 for epoch in range(num_epochs):
 
+    totalLosses = []
     for i, (images, targets) in enumerate(train_loader):
 
         images=list(image.permute(2,0,1).to(device) for image in images)
         targets=[{k:v.to(device) for k,v in t.items()} for t in targets]
               # Forward pass
-        loss_dict=model(images,targets)
-        losses=sum(loss for loss in loss_dict.values())
-        losses_value=losses.item()
-        print(losses_value)
+        lossDict=model(images,targets)
+        losses=sum(loss for loss in lossDict.values())
+        lossesValue=losses.item()
+        totalLosses.append(lossesValue)
+        print("epoch: "+ str(epoch) +" batch: " + str(i) + " loss: " + str(lossesValue))
 
         optimizer.zero_grad()
         losses.backward()
         optimizer.step()
-        # Compute the loss
-        #loss = compute_loss(outputs, targets)  # Implement compute_loss() to calculate the loss
+    print("epoch: " + str(epoch) + " mean loss: " + str(np.mean(totalLosses)))
+    torch.save(model.state_dict(), "./models/" + str(epoch) + ".pt")
 
-        # Backpropagation and optimization
-        #optimizer.zero_grad()
-        #loss.backward()
-        #optimizer.step()
 
-    # Optionally, perform validation and save the best model checkpoint
 
 
 
