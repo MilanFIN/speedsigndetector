@@ -16,6 +16,9 @@ Where the algorithm can be one of the following:
 * `shape`: Using opencv inbuilt HoughCircles to detect circles with the same pytesseract for sign content detection
 * `sift`: Using the SIFT algorithm for both locating and classifying traffic sings, works reasonably well, but is not realtime
 * `brisk`: similar approach to SIFT, but using BRISK and a brute force matcher. This can find sings, but is bad at classifying them.
-* `haar`: Haar Cascade based detection. A better classifier XML file is currently being trained
+* `haar`: Haar Cascade based detection. 
+* `fast`: pytorch fasterrcnn model currently only trained to locate traffic sings
+
+for fasterrcnn you have to download the model (http://asdf.dy.fi/public/single.pt) and place it into `fasterrcnn/models` by hand, as it was too large to include in this repository
 
 Classifier parameter is an optional parameter for `color` & `shape` based detectors. Using `--classifier cnn` will replace the pytesseract based sign reader with a cnn classifier.
