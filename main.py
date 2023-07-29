@@ -4,7 +4,7 @@ import numpy as np
 import time
 from os import listdir
 from os.path import isfile, join
-import pytesseract
+#import pytesseract
 
 
 import sys
@@ -76,25 +76,16 @@ if (args["algo"] is not None):
 		import torch.optim as optim
 		import torch.nn as nn
 		import torch.nn.functional as F
-
 		model = Net()
 		model.load_state_dict(torch.load("./convolution/models/signModel.pt"))
-
 		detect(cascade, model)
+	elif (algo == "fast"):
+		from fasterrcnn import fasterrcnn
+		detect(fasterrcnn)
 else:
 	print("missing -algo parameter")
 
 sys.exit(0)
-
-
-
-algo = "color"
-
-model = None
-
-
-
-
 
 
 
