@@ -28,7 +28,13 @@ if torch.cuda.is_available():
 model.load_state_dict(torch.load("./fasterrcnn/models/single.pt", map_location=torch.device(device) ))
 model.eval()
 
-#image = cv2.imread("images/30.png")
+
+def overlap(box1, box2):
+    # Check if two bounding boxes overlap
+    x0_1, y0_1, x1_1, y1_1 = box1
+    x0_2, y0_2, x1_2, y1_2 = box2
+    return not (x1_1 < x0_2 or x0_1 > x1_2 or y1_1 < y0_2 or y0_1 > y1_2)
+
 
 
 def detect(image):
@@ -42,11 +48,13 @@ def detect(image):
 	labels = result[0]["labels"]
 	scores = result[0]["scores"]
 
+	validPredictions = []
+
 	for (i, box) in enumerate(boxes):
 		label = labels[i].detach().item()
 		score = scores[i].detach().item()
 
-		if (score > 0.5):
+		if (score > 0.2):
 
 			borders = box.detach().numpy()
 			x0 = int(borders[0])
@@ -54,13 +62,18 @@ def detect(image):
 			x1 = int(borders[2])
 			y1 = int(borders[3])
 
-			cv2.rectangle(image, (x0,y0), (x1,y1), (255,255,0), 2)
+			valid = True
 
-			print(type(label), label, classes)
-			cv2.putText(image, classes[label] + ": " + str(int(score*100)) + "%", [x0+2,y0-5], cv2.FONT_HERSHEY_SIMPLEX, 
-				1, (255,255,0), 2, cv2.LINE_AA)
+			for validBox in validPredictions:
+				if (overlap((x0,y0,x1,y1), validBox)):
+					valid = False
+					break
+
+			if (valid):
+				cv2.rectangle(image, (x0,y0), (x1,y1), (255,255,0), 2)
+
+				cv2.putText(image, classes[label] + ": " + str(int(score*100)) + "%", [x0+2,y0-5], cv2.FONT_HERSHEY_SIMPLEX, 
+					1, (255,255,0), 2, cv2.LINE_AA)
+				validPredictions.append((x0, y0, x1, y1))
 
 	return image
-
-	#cv2.imshow("test", image)
-	#cv2.waitKey(3000)
