@@ -19,6 +19,6 @@ Where the algorithm can be one of the following:
 * `haar`: Haar Cascade based detection, tedious to train, as it requires using a legacy version of opencv
 * `fast`: pytorch fasterrcnn model currently only trained to locate traffic sings. Works reasonably well.
 
-for fasterrcnn you have to download the model (http://asdf.dy.fi/public/single.pt) and place it into `fasterrcnn/models` by hand, as it was too large to include in this repository
+for fasterrcnn you have to download the model ([here](https://drive.google.com/file/d/1gQ5X7TZBGazw86YMt3xcboiUO6Qo8X1R/view?usp=sharing)) and place it into `fasterrcnn/models` by hand, as it was too large to include in this repository
 
 Classifier parameter is an optional parameter for `color` & `shape` based detectors. Using `--classifier cnn` will replace the pytesseract based sign reader with a cnn classifier.
