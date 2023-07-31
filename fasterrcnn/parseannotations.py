@@ -45,8 +45,10 @@ with open("./data/annotations.txt", 'r') as file:
 					y0 = str(constraints[1])
 					x1 = str(constraints[2])
 					y1 = str(constraints[3])
-					outputLine += "1,"+x0+","+y0+","+x1+","+y1 + "\n"
+					signIndex = str(speedSigns.index(signLabel))
+					outputLine += signIndex+","+x0+","+y0+","+x1+","+y1 + "\n"
 					outputLines.append(outputLine)
+					print(outputLine)
 		print(image, outputLines)
 		with open("./data/annotations/"+image+ ".txt" , "w") as output:
 			output.writelines(outputLines)

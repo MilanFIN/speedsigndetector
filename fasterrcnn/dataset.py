@@ -50,10 +50,7 @@ class CustomDataset(Dataset):
 			boxes = torch.tensor(boxes, dtype=torch.float32)
 			boxes = torch.squeeze(boxes, 1)
 
-		#boxes = torch.tensor(boxes, dtype=torch.float32)
 
-
-		#labels = torch.tensor(labels, dtype=torch.int64)
 		labels = torch.ones((len(boxes),), dtype=torch.int64)
 	
 
@@ -68,7 +65,6 @@ class CustomDataset(Dataset):
 
 
 		image=torchvision.transforms.ToTensor()(image)
-		image=image.permute(1,2,0)
 
 
 		return image, target

@@ -24,7 +24,26 @@ def collate_fn(batch):
 
 
 
-classes =  {"bkg": 0, "sign":1}
+
+
+classes = {
+    0: "bkg",
+	1: "10_SIGN",
+	2: "20_SIGN",
+	3: "30_SIGN",
+	4: "40_SIGN",
+	5: "50_SIGN",
+	6: "60_SIGN",
+	7: "70_SIGN",
+	8: "80_SIGN",
+	9: "90_SIGN",
+	10: "100_SIGN",
+	11: "110_SIGN",
+	12: "120_SIGN",
+}
+
+
+
 num_classes = len(classes)
 dataset = CustomDataset("data/images", "data/annotations", classes, get_transform(train=True))
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -75,6 +94,9 @@ for epoch in range(num_epochs):
         optimizer.step()
     print("epoch: " + str(epoch) + " mean loss: " + str(np.mean(totalLosses)))
     torch.save(model.state_dict(), "./models/" + str(epoch) + ".pt")
+
+
+
 
 
 
